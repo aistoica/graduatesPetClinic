@@ -1,74 +1,47 @@
 package com.endava.petclinic;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import com.endava.petclinic.logging.RALogger;
+import com.endava.petclinic.clients.OwnerClient;
+import com.endava.petclinic.clients.UserClient;
+import com.endava.petclinic.data.DataGenerator;
 import com.endava.petclinic.models.Owner;
+import com.endava.petclinic.models.RoleName;
 import com.endava.petclinic.models.User;
-import com.endava.petclinic.util.EnvReader;
 import com.github.javafaker.Faker;
 
-import io.restassured.http.ContentType;
-import io.restassured.response.ValidatableResponse;
+import io.restassured.response.Response;
 
 public class PetClinicTest {
 
-	private Faker faker = new Faker();
+	private OwnerClient ownerClient = new OwnerClient();
+	private UserClient userClient = new UserClient();
+	private DataGenerator dataGenerator = new DataGenerator();
 
 	@Test
 	public void firstTest() {
 
 		// create new User
-		User user = new User( faker.internet().password(), faker.name().username(), "OWNER_ADMIN" );
-		given().filters( new RALogger.LogFilter() )
-				.baseUri( EnvReader.getBaseUri() )
-				.port( EnvReader.getPort() )
-				.basePath( EnvReader.getBasePath() )
-				.auth().preemptive().basic( "admin", "admin" )
-				.contentType( ContentType.JSON )
-				.body( user )
-				.post( "/api/users" )
-				.then().statusCode( HttpStatus.SC_CREATED );
+		User user = dataGenerator.getUser( RoleName.OWNER_ADMIN );
+		Response createUserResponse = userClient.createUser( user );
+		createUserResponse.then().statusCode( HttpStatus.SC_CREATED );
 
 		// create new Owner
-		Owner owner = new Owner();
-		owner.setAddress( faker.address().streetAddress() );
-		owner.setCity( faker.address().city() );
-		owner.setFirstName( faker.name().firstName() );
-		owner.setLastName( faker.name().lastName() );
-		owner.setTelephone( faker.number().digits( 10 ) );
+		Owner owner = dataGenerator.getOwner();
+		Response response = ownerClient.createOwner( owner, user );
+		response.then().statusCode( HttpStatus.SC_CREATED );
 
-		ValidatableResponse response = given().filters( new RALogger.LogFilter() )
-				.baseUri( EnvReader.getBaseUri() )
-				.port( EnvReader.getPort() )
-				.basePath( EnvReader.getBasePath() )
-				.auth().preemptive().basic( user.getUsername(), user.getPassword() )
-				.contentType( ContentType.JSON )
-				.body( owner )
-				.post( "/api/owners" )
-				.then().statusCode( HttpStatus.SC_CREATED );
-
-		Integer id = response.extract().jsonPath().getInt( "id" );
+		Integer id = response.jsonPath().getInt( "id" );
 
 		// get owner by id
-		ValidatableResponse getResponse = given().filters( new RALogger.LogFilter() )
-				//request
-				.baseUri( EnvReader.getBaseUri() )
-				.port( EnvReader.getPort() )
-				.basePath( EnvReader.getBasePath() )
-				.auth().preemptive().basic( user.getUsername(), user.getPassword() )
-				.pathParam( "ownerId", id )
-				.get( "/api/owners/{ownerId}" )
-				//response
-				.then().statusCode( HttpStatus.SC_OK );
+		Response getResponse = ownerClient.getOwnerById( id, user );
+		getResponse.then().statusCode( HttpStatus.SC_OK );
 
-		Owner actualOwner = getResponse.extract().as( Owner.class );
-
+		Owner actualOwner = getResponse.as( Owner.class );
 		assertThat( actualOwner, is( owner ) );
 	}
 }

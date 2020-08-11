@@ -14,14 +14,14 @@ public class User {
 	public User() {
 	}
 
-	public User( String password, String username, String... roles ) {
+	public User( String password, String username, RoleName... roles ) {
 		this.enabled = true;
 		this.password = password;
 		this.username = username;
 		this.roles = new ArrayList<>();
 
-		for( String roleName : roles ) {
-			Role role = new Role( roleName );
+		for( RoleName roleName : roles ) {
+			Role role = new Role( roleName.getName() );
 			this.roles.add( role );
 		}
 	}

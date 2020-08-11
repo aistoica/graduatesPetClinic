@@ -17,7 +17,7 @@ import java.io.PrintStream;
 
 public class RALogger {
 
-    private static ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+	private static ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	private static final Logger consoleLogger = LogManager.getLogger( "console" );
 	private static final Logger fileLogger = LogManager.getLogger( "file" );
 

@@ -28,4 +28,12 @@ public class EnvReader {
 	public static String getBasePath() {
 		return properties.getProperty( "basePath" );
 	}
+
+	public static String getAdminUserName() {
+		return properties.getProperty( "admin.username" );
+	}
+
+	public static String getAdminPassword() {
+		return properties.getProperty( "admin.password" );
+	}
 }
