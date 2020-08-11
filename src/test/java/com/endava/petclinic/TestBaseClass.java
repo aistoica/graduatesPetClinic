@@ -3,6 +3,7 @@ package com.endava.petclinic;
 import com.endava.petclinic.clients.OwnerClient;
 import com.endava.petclinic.clients.UserClient;
 import com.endava.petclinic.data.DataGenerator;
+import com.endava.petclinic.fixture.PetClinicFixture;
 
 public class TestBaseClass {
 
@@ -10,4 +11,5 @@ public class TestBaseClass {
 	protected UserClient userClient = new UserClient();
 	protected DataGenerator dataGenerator = new DataGenerator();
 
+	protected PetClinicFixture petClinicFixture = new PetClinicFixture();
 }

@@ -20,18 +20,13 @@ public class GetOwnerByIdTest extends TestBaseClass {
 	public void shouldGetOwnerByIdGivenOwnerAdminUser() {
 
 		//GIVEN
-		User user = dataGenerator.getUser( RoleName.OWNER_ADMIN );
-		Response createUserResponse = userClient.createUser( user );
-		createUserResponse.then().statusCode( HttpStatus.SC_CREATED );
-
-		Owner owner = dataGenerator.getOwner();
-		Response createOwnerResponse = ownerClient.createOwner( owner, user );
-		createOwnerResponse.then().statusCode( HttpStatus.SC_CREATED );
-
-		int ownerId = createOwnerResponse.jsonPath().getInt( "id" );
+		petClinicFixture.createUser( RoleName.OWNER_ADMIN )
+				.createOwner();
+		Owner owner = petClinicFixture.getOwner();
+		User user = petClinicFixture.getUser();
 
 		//WHEN
-		Response getOwnerByIdResponse = ownerClient.getOwnerById( ownerId, user );
+		Response getOwnerByIdResponse = ownerClient.getOwnerById( owner.getId(), user );
 
 		//THEN
 		getOwnerByIdResponse.then().statusCode( HttpStatus.SC_OK );
